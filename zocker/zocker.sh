@@ -95,10 +95,10 @@ refresh_cache() {
     filename="${CACHE_DIR}/${name}.json"
     basename=`dirname ${filename}`
     [[ -d "${basename}" ]] || mkdir -p "${basename}"
-    [[ -f "${filename}" ]] && touch -d "$(( ${CACHE_TTL}+1 )) minutes ago" "${filename}"
+    [[ -f "${filename}" ]] || touch -d "$(( ${CACHE_TTL}+1 )) minutes ago" "${filename}"
 
     if [[ $(( `stat -c '%Y' "${filename}" 2>/dev/null`+60*${CACHE_TTL} )) -le ${TIMESTAMP} ]]; then
-	[[ -f "${DOCKER_SOCK}" ]] || return 1
+	[[ ! -f "${DOCKER_SOCK}" ]] || return 1
 	curl -s --unix-socket "${DOCKER_SOCK}" "${url}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
     fi
     echo "${filename}"
