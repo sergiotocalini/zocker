@@ -146,13 +146,13 @@ containers() {
     if [[ ${params[0]:-list} =~ (list|LIST|all|ALL) ]]; then
 	cache=$( refresh_cache 'containers' )
 	if [[ ${?} == 0 ]]; then
-	    res=`jq ".[] | [.Id, .Names[0][1:], (.Created|tostring), .State, .Status] | join(\"|\")" ${cache} 2>/dev/null`
+	    res=`jq -r ".[] | [.Id, .Names[0][1:], (.Created|tostring), .State, .Status] | join(\"|\")" ${cache} 2>/dev/null`
 	fi
     elif [[ ${#params[@]} > 1 ]]; then
 	if [[ ${params[0]} =~ (data|stats) ]]; then
 	    cache=$( refresh_cache 'containers' "${params[0]}" "${params[1]}" )
 	    if [[ ${?} == 0 ]]; then
-		res=`jq ".${params[2]}" ${cache} 2>/dev/null`
+		res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
 	    fi
 	fi
     fi
@@ -166,13 +166,13 @@ images() {
     if [[ ${params[0]:-list} =~ (list|LIST|all|ALL) ]]; then
 	cache=$( refresh_cache 'images' )
 	if [[ ${?} == 0 ]]; then
-	    res=`jq ".[] | [.Id, .RepoTags[0], (.Created|tostring), (.Size|tostring)] | join(\"|\")" ${cache} 2>/dev/null`
+	    res=`jq -r ".[] | [.Id, .RepoTags[0], (.Created|tostring), (.Size|tostring)] | join(\"|\")" ${cache} 2>/dev/null`
 	fi
     elif [[ ${#params[@]} > 1 ]]; then
 	if [[ ${params[0]} =~ (data) ]]; then
 	    cache=$( refresh_cache 'images' "${params[0]}" "${params[1]}" )
 	    if [[ ${?} == 0 ]]; then
-		res=`jq ".${params[2]}" ${cache} 2>/dev/null`
+		res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
 	    fi
 	fi
     fi
@@ -186,7 +186,7 @@ general() {
     if [[ ${params[0]:-info} =~ (info|version|volumes|network) ]]; then
 	cache=$( refresh_cache "${params[0]}" )
 	if [[ ${?} == 0 ]]; then
-	    res=`jq ".${params[2]}" ${cache} 2>/dev/null`
+	    res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
 	fi
     fi
     echo "${res:-0}"
