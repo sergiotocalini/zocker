@@ -1,0 +1,3 @@
+DOCKER_SOCK="/var/run/docker.sock"
+CACHE_DIR="/tmp/zocker/"
+CACHE_TTL="1"
