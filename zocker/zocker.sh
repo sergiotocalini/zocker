@@ -93,7 +93,7 @@ refresh_cache() {
     [[ -z ${url} || -z ${name} ]] && return 1
     
     filename="${CACHE_DIR}/${name}.json"
-    basename=`basename ${filename}`
+    basename=`dirname ${filename}`
     [[ -d "${basename}" ]] || mkdir -p "${basename}"
     [[ -f "${filename}" ]] || touch -d "$(( ${CACHE_TTL}+1 )) minutes ago" "${filename}"
 
