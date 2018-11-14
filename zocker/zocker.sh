@@ -63,6 +63,7 @@ zabbix_not_support() {
 
 refresh_cache() {
     params=( "${@}" )
+    ttl="${CACHE_TTL}"
     if [[ ${#params[@]} > 1 ]]; then
 	if [[ ${params[0]} == 'containers' ]]; then
 	    if [[ ${params[1]} == 'data' ]]; then
@@ -95,9 +96,9 @@ refresh_cache() {
     filename="${CACHE_DIR}/${name}.json"
     basename=`dirname ${filename}`
     [[ -d "${basename}" ]] || mkdir -p "${basename}"
-    [[ -f "${filename}" ]] || touch -d "$(( ${CACHE_TTL}+1 )) minutes ago" "${filename}"
+    [[ -f "${filename}" ]] || touch -d "$(( ${ttl}+1 )) minutes ago" "${filename}"
 
-    if [[ $(( `stat -c '%Y' "${filename}" 2>/dev/null`+60*${CACHE_TTL} )) -le ${TIMESTAMP} ]]; then
+    if [[ $(( `stat -c '%Y' "${filename}" 2>/dev/null`+60*${ttl} )) -le ${TIMESTAMP} ]]; then
 	[[ ! -f "${DOCKER_SOCK}" ]] || return 1
 	curl -s --unix-socket "${DOCKER_SOCK}" "${url}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
     fi
@@ -156,7 +157,7 @@ containers() {
 	    fi
 	fi
     fi
-    echo "${res:-0}"
+    echo "${res}"
     return 0    
 }
 
@@ -176,7 +177,7 @@ images() {
 	    fi
 	fi
     fi
-    echo "${res:-0}"
+    echo "${res}"
     return 0    
 }
 
@@ -189,7 +190,7 @@ general() {
 	    res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
 	fi
     fi
-    echo "${res:-0}"
+    echo "${res}"
     return 0    
 }
 
