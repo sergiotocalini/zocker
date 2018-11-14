@@ -100,7 +100,7 @@ refresh_cache() {
 
     if [[ $(( `stat -c '%Y' "${filename}" 2>/dev/null`+60*${ttl} )) -le ${TIMESTAMP} ]]; then
 	[[ ! -f "${DOCKER_SOCK}" ]] || return 1
-	curl -s --unix-socket "${DOCKER_SOCK}" "${url}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
+	sudo curl -s --unix-socket "${DOCKER_SOCK}" "${url}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
     fi
     echo "${filename}"
 }
