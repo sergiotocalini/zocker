@@ -157,7 +157,7 @@ containers() {
 	    fi
 	fi
     fi
-    echo "${res}"
+    echo "${res//null}"
     return 0    
 }
 
@@ -177,7 +177,7 @@ images() {
 	    fi
 	fi
     fi
-    echo "${res}"
+    echo "${res//null}"
     return 0    
 }
 
@@ -190,7 +190,7 @@ general() {
 	    res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
 	fi
     fi
-    echo "${res}"
+    echo "${res//null}"
     return 0    
 }
 
