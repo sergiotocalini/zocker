@@ -111,7 +111,7 @@ service() {
     regex_match=( "${.sh.match[@]:-${BASH_REMATCH[@]:-${match[@]}}}" )
     
     if [[ ${params[0]} =~ (uptime|listen) ]]; then
-	pid=`sudo lsof -Pi :${regex_match[10]:-${regex_match[2]}} -sTCP:LISTEN -t 2>/dev/null`
+	pid=`sudo lsof -Pi :${regex_match[6]:-${regex_match[2]}} -sTCP:LISTEN -t 2>/dev/null`
 	rcode="${?}"
 	if [[ -n ${pid} ]]; then
 	    if [[ ${params[0]} == 'uptime' ]]; then
