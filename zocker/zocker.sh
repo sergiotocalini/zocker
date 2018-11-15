@@ -11,12 +11,11 @@ IFS_DEFAULT="${IFS}"
 #
 APP_NAME=$(basename $0)
 APP_DIR=$(dirname $0)
-APP_VER="1.0.0"
+APP_VER="1.0.1"
 APP_WEB="http://www.sergiotocalini.com.ar/"
-PID_FILE="/var/run/keepalived.pid"
 TIMESTAMP=`date '+%s'`
 
-DOCKER_SOCK="/var/run/docker.sock"
+DOCKER_URL="http://localhost:8200"
 CACHE_DIR="${APP_DIR}/tmp"
 CACHE_TTL=1                                      # IN MINUTES
 #
@@ -68,27 +67,27 @@ refresh_cache() {
 	if [[ ${params[0]} == 'containers' ]]; then
 	    if [[ ${params[1]} == 'data' ]]; then
 		name="containers/${params[2]}/data"
-		url="http://localhost/containers/${params[2]}/json?size=true"
+		endpoint="containers/${params[2]}/json?size=true"
 	    elif [[ ${params[1]} == 'stats' ]]; then
 		name="containers/${params[2]}/stats"
-		url="http://localhost/containers/${params[2]}/stats?stream=false"
+		endpoint="containers/${params[2]}/stats?stream=false"
 	    fi
 	elif [[ ${params[0]} == 'images' ]]; then
 	    if [[ ${params[1]} == 'data' ]]; then
-		name="containers/${params[2]}/data"
-		url="http://localhost/images/${params[2]}/json"
+		name="images/${params[2]}/data"
+		endpoint="images/${params[2]}/json"
 	    fi
 	fi
     else
 	if [[ ${params[0]} == 'containers' ]]; then
 	    name="containers/data"
-	    url="http://localhost/containers/json?size=true&all=true"
+	    endpoint="containers/json?size=true&all=true"
 	elif [[ ${params[0]} == 'images' ]]; then
 	    name="images/data"
-	    url="http://localhost/images/json?all=true"
+	    enpoint="images/json?all=true"
 	else
 	    name="${params[0]}"
-	    url="http://localhost/${params[0]}"
+	    endpoint="${params[0]}"
 	fi
     fi
     [[ -z ${url} || -z ${name} ]] && return 1
@@ -99,8 +98,7 @@ refresh_cache() {
     [[ -f "${filename}" ]] || touch -d "$(( ${ttl}+1 )) minutes ago" "${filename}"
 
     if [[ $(( `stat -c '%Y' "${filename}" 2>/dev/null`+60*${ttl} )) -le ${TIMESTAMP} ]]; then
-	[[ ! -f "${DOCKER_SOCK}" ]] || return 1
-	sudo curl -s --unix-socket "${DOCKER_SOCK}" "${url}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
+	curl -s "${DOCKER_URL}/${endpoint}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
     fi
     echo "${filename}"
 }
@@ -120,22 +118,10 @@ service() {
 		res=`sudo ps -p ${pid} -o etimes -h 2>/dev/null`
 	    elif [[ ${params[0]} == 'listen' ]]; then
 		[[ ${rcode} == 0 && -n ${pid} ]] && res=1
-	    elif [[ ${params[0]} == 'cert' ]]; then
-		cert_text=`openssl s_client -connect "${regex_match[3]}:${regex_match[10]:-${regex_match[2]}}" </dev/null 2>/dev/null`
-		if [[ ${params[1]} == 'expires' ]]; then
-		    date=`echo "${cert_text}" | openssl x509 -noout -enddate 2>/dev/null | cut -d'=' -f2`
-		    res=$((($(date -d "${date}" +'%s') - $(date +'%s'))/86400))
-		elif [[ ${params[1]} == 'after' ]]; then
-		    date=`echo "${cert_text}" | openssl x509 -noout -enddate 2>/dev/null | cut -d'=' -f2`
-		res=`date -d "${date}" +'%s' 2>/dev/null`
-		elif [[ ${params[1]} == 'before' ]]; then
-		    date=`echo "${cert_text}" | openssl x509 -noout -startdate 2>/dev/null | cut -d'=' -f2`
-		    res=`date -d "${date}" +'%s' 2>/dev/null`
-		fi
 	    fi
 	fi
     elif [[ ${params[0]} == 'version' ]]; then
-	res=`dovecot --version 2>/dev/null`
+	res=$( general 'info' 'ServerVersion' )
     fi
     echo "${res:-0}"
     return 0
