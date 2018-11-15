@@ -90,7 +90,7 @@ refresh_cache() {
 	    endpoint="${params[0]}"
 	fi
     fi
-    [[ -z ${url} || -z ${name} ]] && return 1
+    [[ -z ${endpoint} || -z ${name} ]] && return 1
     
     filename="${CACHE_DIR}/${name}.json"
     basename=`dirname ${filename}`
