@@ -173,7 +173,7 @@ general() {
     if [[ ${params[0]:-info} =~ (info|version|volumes|network) ]]; then
 	cache=$( refresh_cache "${params[0]}" )
 	if [[ ${?} == 0 ]]; then
-	    res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
+	    res=`jq -r ".${params[1]}" ${cache} 2>/dev/null`
 	fi
     fi
     echo "${res//null}"
