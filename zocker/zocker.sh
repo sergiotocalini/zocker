@@ -140,6 +140,11 @@ containers() {
 	    cache=$( refresh_cache 'containers' "${params[0]}" "${params[1]}" )
 	    if [[ ${?} == 0 ]]; then
 		res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
+		if [[ ${res} =~ (true|TRUE|True) ]]; then
+		    res=1
+		elif [[ ${res} =~ (false|FALSE|False) ]]; then
+		    res=0
+		fi
 	    fi
 	fi
     fi
@@ -160,6 +165,11 @@ images() {
 	    cache=$( refresh_cache 'images' "${params[0]}" "${params[1]}" )
 	    if [[ ${?} == 0 ]]; then
 		res=`jq -r ".${params[2]}" ${cache} 2>/dev/null`
+		if [[ ${res} =~ (true|TRUE|True) ]]; then
+		    res=1
+		elif [[ ${res} =~ (false|FALSE|False) ]]; then
+		    res=0
+		fi
 	    fi
 	fi
     fi
