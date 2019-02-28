@@ -3,7 +3,7 @@ SOURCE_DIR=$(dirname $0)
 ZABBIX_DIR=/etc/zabbix
 PREFIX_DIR="${ZABBIX_DIR}/scripts/agentd/zocker"
 
-ZOCKER_SOCK="${1:-/var/run/docker.sock}"
+DOCKER_URL="${1:-http://localhost:8200}"
 CACHE_DIR="${2:-${PREFIX_DIR}/tmp}"
 CACHE_TTL="${3:-5}"
 
