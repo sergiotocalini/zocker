@@ -16,6 +16,7 @@ APP_WEB="http://www.sergiotocalini.com.ar/"
 TIMESTAMP=`date '+%s'`
 
 DOCKER_URL="http://localhost:8200"
+DOCKER_SOCK=""
 CACHE_DIR="${APP_DIR}/tmp"
 CACHE_TTL=1                                      # IN MINUTES
 #
@@ -98,7 +99,10 @@ refresh_cache() {
     [[ -f "${filename}" ]] || touch -d "$(( ${ttl}+1 )) minutes ago" "${filename}"
 
     if [[ $(( `stat -c '%Y' "${filename}" 2>/dev/null`+60*${ttl} )) -le ${TIMESTAMP} ]]; then
-	curl -s "${DOCKER_URL}/${endpoint}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
+	if [[ -n ${DOCKER_SOCK} ]]; then
+	    curl_sock="--unix-socket \"${DOCKER_SOCK}\""
+	fi
+	curl "${curl_sock}" -s "${DOCKER_URL}/${endpoint}" 2>/dev/null | jq . 2>/dev/null > "${filename}"
     fi
     echo "${filename}"
 }
